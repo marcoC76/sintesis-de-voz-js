@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!-- <link rel="stylesheet" href="example.css"> -->
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .seccion {
+            padding: 10%;
+        }
+
+        #text {
+            width: 100%;
+            font-size: 2em;
+
+        }
+
+        input[type="range"] {
+            display: block;
+            width: 100%;
+        }
+        li{
+            list-style: none;
+        }
+        .btnRec{
+           
+            background: transparent;
+           
+        }
+    </style>
+</head>
+
+<body>
+    <div class="seccion">
+        <p id="msj">...</p>
+
+
+        <h3>volumen:</h3>
+        <input type="range" min="0" max="1" step="0.1" name="volume" id="volume" value="1">
+        <h3>rate:</h3>
+        <input type="range" min="0.1" max="10" step="0.1" name="rate" id="rate" value="1">
+        <h3>pitch:</h3>
+        <input type="range" min="0" max="2" step="0.1" name="pitch" id="pitch" value="1">
+
+        <br>
+        <label for="text">Mensaje:</label>
+        <textarea id="text"></textarea>
+
+
+
+
+
+        <!--  <textarea id="text">Hola Mundo...</textarea> -->
+        <center>
+            <button onclick="reciente()" id="talk">Hablar</button>
+
+        </center>
+
+        <h3>
+            Recientes:
+        </h3>
+        <button onclick="remover()">Borrar todo</button>
+        <ul id="rec">
+
+        </ul>
+
+    </div>
+
+
+
+
+    <script>
+        var array = localStorage.getItem('myArray');
+        var recien = [];
+        var cont = document.getElementById("rec");
+        var config;
+        window.onload = function () {
+            if (JSON.parse(array) == null) {
+                recien = [];
+            } else {
+                recien = JSON.parse(array);
+                var arreglo = ``;
+                recien.forEach(function (element) {
+
+                    arreglo += `
+                        <li class="li-element">
+                            <button class="btnRec" onclick="reemplaza('${element}')">${element}</button>
+                        </li>
+                        `;
+                });
+                document.getElementById("rec").innerHTML = arreglo;
+                ordenaLi();
+            }
+
+        };
+
+        function reciente() {
+
+
+            var text = document.getElementById("text").value;
+            if (text != "") {
+                recien.push(text);
+                localStorage.setItem('myArray', JSON.stringify(recien));
+                var arreglo = ``;
+                recien.forEach(function (element) {
+
+                    arreglo += `
+                        <li class="li-element">
+                            <button class="btnRec" onclick="reemplaza('${element}')">${element}</button>
+                        </li>
+                        `;
+                });
+                document.getElementById("rec").innerHTML = arreglo;
+                ordenaLi();
+                talk();
+            }
+
+
+
+        }
+
+        function remover() {
+            localStorage.removeItem('myArray');
+            recien = [];
+            var arreglo = ``;
+            document.getElementById("rec").innerHTML = arreglo
+        }
+
+        function ordenaLi() {
+            var container = document.getElementById('rec');
+            var elements = document.getElementsByClassName('li-element');
+            for (var i = elements.length - 2; i >= 0; i--) {
+                container.appendChild(elements[i]);
+            }
+        }
+
+
+        function reemplaza(e) { //incia funcion para hablar
+            /* onsole.log(e); */
+            document.getElementById("text").value = e;
+            reciente();
+            localStorage.setItem('myArray', JSON.stringify(recien));
+        }
+
+        function talk() { //incia funcion para hablar
+            document.getElementById("talk").disabled = true;
+            cont.style.pointerEvents = "none";
+            var msg = new SpeechSynthesisUtterance(); //define una instancia de la clase para sintesis de discurso
+            msg.lang = 'es-ES'; //define el lenguaje de pronunciacion
+            msg.text = document.getElementById("text").value; //obtiene el texto de la caja text y se asigna al mensaje
+            msg.volume = 1; // 0 to 1 //define el volumen
+            msg.rate = document.getElementById("rate")
+                .value; // 0.1 to 10 //obtiene de rate la velocidad para la pronunciacion
+              
+            msg.pitch = document.getElementById("pitch")
+                .value; //0 to 2//obtiene de pitch la entonacion para la pronunciacion
+                
+            msg.volume = document.getElementById("volume")
+                .value; //0 to 2//obtiene de volume el volumen para la pronunciacion
+                
+            window.speechSynthesis.speak(msg); //le entrega a speechSyntheis el mensaje para que lo pronuncie
+            
+            msg.onstart = function (e) { //se ejecuta al iniciar la pronunciacion
+                document.getElementById("msj").innerHTML = 'Hablando...';
+                console.log('Hablando...');
+            };
+
+            msg.onend = function (e) { //se ejecuta cuando termina la pronunciacion
+                document.getElementById("talk").disabled = false;
+                cont.style.pointerEvents = "auto";
+                document.getElementById("msj").innerHTML = 'Finalizado en ' + event.elapsedTime + ' segundos.';
+                console.log('Finalizado en ' + event.elapsedTime +
+                    ' segundos.'); //elapsedTime regresa el timempo del evento de pronunciacion
+            };
+        }
+    </script>
+</body>
+
+</html>
