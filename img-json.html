@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>imagenes</title>
+</head>
+
+<body>
+    <div id="imagen">
+
+    </div>
+
+    <script>
+        var obj;
+        var img = "";
+        ft();
+        img = obj.amigo;
+        document.getElementById("imagen").innerHTML = `
+                                                                <img src="${img}">
+                                                                `;
+        function ft() {
+            fetch('img.json')
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    obj = data;
+                    console.log(obj);
+                    /* console.log(obj.amigo); */
+                   
+
+                })
+                .catch(function (err) {
+                    console.error(err);
+                });
+                
+
+        }
+        
+    </script>
+
+</body>
+
+</html>
